@@ -8,5 +8,5 @@ spring:
         git:
           uri: https://github.com/camano/Cuentas-java.git
           searchPaths: config-data
-          default-label : master
+          default-label : main
 
