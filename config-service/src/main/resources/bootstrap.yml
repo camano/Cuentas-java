@@ -6,7 +6,10 @@ spring:
     config:
       server:
         git:
+          default-label : main
           uri: https://github.com/camano/Cuentas-java.git
           searchPaths: config-data
-          default-label : main
+          username: camano
+          password: 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
+          
 
