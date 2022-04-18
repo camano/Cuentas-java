@@ -1,8 +1,5 @@
 package com.jonathan.rest.deudaservice.dto;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class DeudaDto {
 
     private Integer id;
