@@ -5,10 +5,12 @@ import java.util.Set;
 
 import com.jonathan.rest.usuarioservice.dto.LoginDTO;
 import com.jonathan.rest.usuarioservice.dto.RegistroDTO;
+import com.jonathan.rest.usuarioservice.dto.TokenDto;
 import com.jonathan.rest.usuarioservice.entity.Rol;
 import com.jonathan.rest.usuarioservice.entity.Usuario;
 import com.jonathan.rest.usuarioservice.jwt.JWTAuthResonseDTO;
 import com.jonathan.rest.usuarioservice.jwt.JwtTokenProvider;
+import com.jonathan.rest.usuarioservice.repository.CustomUserDetailsService;
 import com.jonathan.rest.usuarioservice.repository.RolRepositorio;
 import com.jonathan.rest.usuarioservice.repository.UsuarioRepositorio;
 
@@ -21,11 +23,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.util.StringUtils;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -46,13 +50,16 @@ public class AuthControlador {
 	@Autowired
 	private JwtTokenProvider jwtTokenProvider;
 
+	@Autowired
+	private CustomUserDetailsService customUserDetailsService;
+
 	@PostMapping("/login")
 	public ResponseEntity<JWTAuthResonseDTO> authenticateUser(@RequestBody LoginDTO loginDTO) {
 		Authentication authentication = authenticationManager.authenticate(
 				new UsernamePasswordAuthenticationToken(loginDTO.getUsernameOrEmail(), loginDTO.getPassword()));
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
-		
+
 		// obtenemos el token del jwtTokenProvider
 		String token = jwtTokenProvider.generarToken(authentication);
 		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
@@ -72,7 +79,7 @@ public class AuthControlador {
 		if (usuarioRepositorio.existsByEmail(registroDTO.getEmail())) {
 			return new ResponseEntity<>("Ese email de usuario ya existe", HttpStatus.BAD_REQUEST);
 		}
-		
+
 		Usuario usuario = new Usuario();
 		usuario.setNombre(registroDTO.getNombre());
 		usuario.setUsername(registroDTO.getUsername());
@@ -87,5 +94,22 @@ public class AuthControlador {
 		usuario.setRoles(roles);
 		usuarioRepositorio.save(usuario);
 		return new ResponseEntity<>("Usuario registrado exitosamente", HttpStatus.OK);
+	}
+
+	@PostMapping("/validate")
+	public ResponseEntity<TokenDto> validate(@RequestParam String token) {
+		TokenDto tokenDto = new TokenDto();
+		if (StringUtils.hasText(token) && jwtTokenProvider.validarToken(token)) {
+			String username = jwtTokenProvider.obtenerUsernameDelJWT(token);
+			// cargamos el usuario asociado al token
+			UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+			if (userDetails == null) {
+				return new ResponseEntity<TokenDto>(tokenDto, HttpStatus.BAD_GATEWAY);
+			}
+
+			tokenDto.setToken(token);
+		}
+		return new ResponseEntity<TokenDto>(tokenDto, HttpStatus.OK);
+
 	}
 }
