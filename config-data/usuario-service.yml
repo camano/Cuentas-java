@@ -1,4 +1,6 @@
-
+server:
+  port: 9000
+  
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/economiadb
@@ -15,5 +17,8 @@ app:
   jwt-secret: JWTSecretKey
   jwt-expiration-milliseconds: 86400000
 
-server:
-  port: 9000
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8082/eureka/
