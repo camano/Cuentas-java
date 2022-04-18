@@ -17,4 +17,7 @@ spring:
           uri: lb://deuda-service
           predicates:
             - Path=/api/deudas/**
-        
+        - id: usuario-service
+          uri: lb://usuario-service
+          predicates:
+            - Path=/api/auth/**
