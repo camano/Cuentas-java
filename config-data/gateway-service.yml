@@ -16,5 +16,5 @@ spring:
         - id: deuda-service
           uri: lb://deuda-service
           predicates:
-            - Path=/deuda/**
+            - Path=/api/deudas/**
         
