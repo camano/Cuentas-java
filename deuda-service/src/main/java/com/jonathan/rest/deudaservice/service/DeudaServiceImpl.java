@@ -3,6 +3,7 @@ package com.jonathan.rest.deudaservice.service;
 import java.util.List;
 
 import com.jonathan.rest.deudaservice.dto.DeudaDto;
+import com.jonathan.rest.deudaservice.dto.EstadoDto;
 import com.jonathan.rest.deudaservice.entity.Deuda;
 import com.jonathan.rest.deudaservice.entity.Estado;
 import com.jonathan.rest.deudaservice.repository.DeudaRepository;
@@ -32,20 +33,30 @@ public class DeudaServiceImpl implements DeudaService {
     @Override
     public DeudaDto addDeuda(DeudaDto deudaDto) {
         Deuda deuda = mapearDto(deudaDto);
-        Estado estado = new Estado();
-        estado.setId((long) 1);
-        estado.setNombre("Pendiente");
+        
+        Estado estado = estadoRepository.findById(deudaDto.getEstado()).orElse(null);
+        
         deuda.setEstado(estado);
         Deuda guardarDeuda = deudaRepository.save(deuda);
         return mapearEntidad(guardarDeuda);
     }
 
     private DeudaDto mapearEntidad(Deuda deuda) {
-        return modelMapper.map(deuda, DeudaDto.class);
+        DeudaDto deudaDto = new DeudaDto();
+        deudaDto.setId(deuda.getId());
+        deudaDto.setDescripcion(deuda.getDescripcion());
+        deudaDto.setValor(deuda.getValor());        
+        return deudaDto;
     }
 
     private Deuda mapearDto(DeudaDto deudaDto) {
-        return modelMapper.map(deudaDto, Deuda.class);
+        Deuda deuda = new Deuda();
+        deuda.setId(deudaDto.getId());
+        deuda.setDescripcion(deudaDto.getDescripcion());
+        deuda.setValor(deudaDto.getValor());
+        return deuda;
     }
+
+    
 
 }

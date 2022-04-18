@@ -5,24 +5,25 @@ import java.util.Set;
 
 public class DeudaDto {
 
-    private long id;
+    private Integer id;
     private String descripcion;
     private Double valor;
-    
+    private Integer estado;
 
     public DeudaDto() {
     }
 
-    public DeudaDto(String descripcion, Double valor) {
+    public DeudaDto(String descripcion, Double valor, Integer estado) {
         this.descripcion = descripcion;
-        this.valor = valor;        
+        this.valor = valor;
+        this.estado = estado;
     }
 
-    public long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -42,6 +43,12 @@ public class DeudaDto {
         this.valor = valor;
     }
 
-    
+    public Integer getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Integer estado) {
+        this.estado = estado;
+    }
 
 }

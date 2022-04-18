@@ -9,7 +9,7 @@ public class Deuda implements Serializable {
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
     private String descripcion;
     private Double valor;
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -25,11 +25,11 @@ public class Deuda implements Serializable {
         this.estado = estado;
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -55,11 +55,6 @@ public class Deuda implements Serializable {
 
     public void setEstado(Estado estado) {
         this.estado = estado;
-    }
-
-    @Override
-    public String toString() {
-        return "Deuda [descripcion=" + descripcion + ", estado=" + estado + ", id=" + id + ", valor=" + valor + "]";
     }
 
 }

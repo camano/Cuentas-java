@@ -31,12 +31,9 @@ public class DeudasController {
     public ResponseEntity<?> guardarDeuda(@RequestBody DeudaDto deudaDto) {
         Map<String, Object> mensaje = new HashMap<>();        
         DeudaDto respuesta = deudaService.addDeuda(deudaDto);        
-        if (respuesta == null) {
-            mensaje.put("Mensaje ", "No se pudo crear");
-            return new ResponseEntity<>(mensaje, HttpStatus.BAD_REQUEST);
-        }
+        
         mensaje.put("Mensaje", "Se creo la deuda");
-        mensaje.put("Deuda", deudaDto);
+        mensaje.put("Deuda", deudaDto );
         return new ResponseEntity<>(mensaje, HttpStatus.CREATED);
     }
 

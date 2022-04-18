@@ -2,7 +2,7 @@ package com.jonathan.rest.deudaservice.dto;
 
 public class EstadoDto {
 
-    private long id;
+    private Integer id;
     private String nombre;
 
     public EstadoDto() {
@@ -12,11 +12,12 @@ public class EstadoDto {
         this.nombre = nombre;
     }
 
-    public long getId() {
+    
+    public Integer getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
