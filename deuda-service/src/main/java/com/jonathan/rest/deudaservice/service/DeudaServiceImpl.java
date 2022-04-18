@@ -45,7 +45,7 @@ public class DeudaServiceImpl implements DeudaService {
         DeudaDto deudaDto = new DeudaDto();
         deudaDto.setId(deuda.getId());
         deudaDto.setDescripcion(deuda.getDescripcion());
-        deudaDto.setValor(deuda.getValor());        
+        deudaDto.setValor(deuda.getValor());                
         return deudaDto;
     }
 
