@@ -102,13 +102,15 @@ public class AuthControlador {
 			String username = jwtTokenProvider.obtenerUsernameDelJWT(token);
 			// cargamos el usuario asociado al token
 			UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+			
 			if (userDetails == null) {
-				return new ResponseEntity<TokenDto>(tokenDto, HttpStatus.BAD_GATEWAY);
+				return ResponseEntity.badRequest().build();
 			}
 
 			tokenDto.setToken(token);
+			return ResponseEntity.ok(tokenDto);
 		}
-		return new ResponseEntity<TokenDto>(tokenDto, HttpStatus.OK);
+		return new ResponseEntity<TokenDto>(tokenDto, HttpStatus.BAD_GATEWAY);
 
 	}
 }
