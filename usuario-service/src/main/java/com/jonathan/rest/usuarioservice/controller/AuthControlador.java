@@ -8,7 +8,6 @@ import com.jonathan.rest.usuarioservice.dto.RegistroDTO;
 import com.jonathan.rest.usuarioservice.dto.TokenDto;
 import com.jonathan.rest.usuarioservice.entity.Rol;
 import com.jonathan.rest.usuarioservice.entity.Usuario;
-import com.jonathan.rest.usuarioservice.jwt.JWTAuthResonseDTO;
 import com.jonathan.rest.usuarioservice.jwt.JwtTokenProvider;
 import com.jonathan.rest.usuarioservice.repository.CustomUserDetailsService;
 import com.jonathan.rest.usuarioservice.repository.RolRepositorio;
@@ -34,83 +33,79 @@ import org.springframework.util.StringUtils;
 @RequestMapping("/api/auth")
 public class AuthControlador {
 
-	@Autowired
-	private AuthenticationManager authenticationManager;
+    @Autowired
+    private AuthenticationManager authenticationManager;
 
-	@Autowired
-	private UsuarioRepositorio usuarioRepositorio;
+    @Autowired
+    private UsuarioRepositorio usuarioRepositorio;
 
-	@Autowired
-	private RolRepositorio rolRepositorio;
+    @Autowired
+    private RolRepositorio rolRepositorio;
 
-	@Autowired
-	private PasswordEncoder passwordEncoder;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
-	@Autowired
-	private JwtTokenProvider jwtTokenProvider;
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
 
-	@Autowired
-	private CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
 
-	@PostMapping("/login")
-	public ResponseEntity<JWTAuthResonseDTO> authenticateUser(@RequestBody LoginDTO loginDTO) {
-		Authentication authentication = authenticationManager.authenticate(
-				new UsernamePasswordAuthenticationToken(loginDTO.getUsernameOrEmail(), loginDTO.getPassword()));
+    @PostMapping("/login")
+    public ResponseEntity<TokenDto> authenticateUser(@RequestBody LoginDTO loginDTO) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginDTO.getUsernameOrEmail(), loginDTO.getPassword()));
 
-		SecurityContextHolder.getContext().setAuthentication(authentication);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		// obtenemos el token del jwtTokenProvider
-		String token = jwtTokenProvider.generarToken(authentication);
-		UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        // obtenemos el token del jwtTokenProvider
+        String token = jwtTokenProvider.generarToken(authentication);
+        TokenDto tokenDto = new TokenDto(token);
+        return new ResponseEntity<>(tokenDto, HttpStatus.OK);
+    }
 
-		JWTAuthResonseDTO jwtAuthResonseDTO = new JWTAuthResonseDTO(token, userDetails.getUsername(),
-				userDetails.getAuthorities());
+    @PostMapping("/registrar")
+    public ResponseEntity<?> registrarUsuario(@RequestBody RegistroDTO registroDTO) {
+        if (usuarioRepositorio.existsByUsername(registroDTO.getUsername())) {
+            return new ResponseEntity<>("Ese nombre de usuario ya existe", HttpStatus.BAD_REQUEST);
+        }
 
-		return new ResponseEntity<>(jwtAuthResonseDTO, HttpStatus.OK);
-	}
+        if (usuarioRepositorio.existsByEmail(registroDTO.getEmail())) {
+            return new ResponseEntity<>("Ese email de usuario ya existe", HttpStatus.BAD_REQUEST);
+        }
 
-	@PostMapping("/registrar")
-	public ResponseEntity<?> registrarUsuario(@RequestBody RegistroDTO registroDTO) {
-		if (usuarioRepositorio.existsByUsername(registroDTO.getUsername())) {
-			return new ResponseEntity<>("Ese nombre de usuario ya existe", HttpStatus.BAD_REQUEST);
-		}
+        Usuario usuario = new Usuario();
+        usuario.setNombre(registroDTO.getNombre());
+        usuario.setUsername(registroDTO.getUsername());
+        usuario.setEmail(registroDTO.getEmail());
+        usuario.setPassword(passwordEncoder.encode(registroDTO.getPassword()));
 
-		if (usuarioRepositorio.existsByEmail(registroDTO.getEmail())) {
-			return new ResponseEntity<>("Ese email de usuario ya existe", HttpStatus.BAD_REQUEST);
-		}
+        Set<Rol> roles = new HashSet<>();
+        roles.add(rolRepositorio.findByNombre("ROLE_USER").get());
+        if (registroDTO.getRoles().contains("admin")) {
+            roles.add(rolRepositorio.findByNombre("ROLE_ADMIN").get());
+        }
+        usuario.setRoles(roles);
+        usuarioRepositorio.save(usuario);
+        return new ResponseEntity<>("Usuario registrado exitosamente", HttpStatus.OK);
+    }
 
-		Usuario usuario = new Usuario();
-		usuario.setNombre(registroDTO.getNombre());
-		usuario.setUsername(registroDTO.getUsername());
-		usuario.setEmail(registroDTO.getEmail());
-		usuario.setPassword(passwordEncoder.encode(registroDTO.getPassword()));
+    @PostMapping("/validate")
+    public ResponseEntity<TokenDto> validate(@RequestParam String token) {
+        TokenDto tokenDto = new TokenDto();
+        if (StringUtils.hasText(token) && jwtTokenProvider.validarToken(token)) {
+            String username = jwtTokenProvider.obtenerUsernameDelJWT(token);
+            // cargamos el usuario asociado al token
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
-		Set<Rol> roles = new HashSet<>();
-		roles.add(rolRepositorio.findByNombre("ROLE_USER").get());
-		if (registroDTO.getRoles().contains("admin")) {
-			roles.add(rolRepositorio.findByNombre("ROLE_ADMIN").get());
-		}
-		usuario.setRoles(roles);
-		usuarioRepositorio.save(usuario);
-		return new ResponseEntity<>("Usuario registrado exitosamente", HttpStatus.OK);
-	}
+            if (userDetails == null) {
+                return ResponseEntity.badRequest().build();
+            }
 
-	@PostMapping("/validate")
-	public ResponseEntity<TokenDto> validate(@RequestParam String token) {
-		TokenDto tokenDto = new TokenDto();
-		if (StringUtils.hasText(token) && jwtTokenProvider.validarToken(token)) {
-			String username = jwtTokenProvider.obtenerUsernameDelJWT(token);
-			// cargamos el usuario asociado al token
-			UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-			
-			if (userDetails == null) {
-				return ResponseEntity.badRequest().build();
-			}
+            tokenDto.setToken(token);
+            return ResponseEntity.ok(tokenDto);
+        }
+        return new ResponseEntity<TokenDto>(tokenDto, HttpStatus.BAD_REQUEST);
 
-			tokenDto.setToken(token);
-			return ResponseEntity.ok(tokenDto);
-		}
-		return new ResponseEntity<TokenDto>(tokenDto, HttpStatus.BAD_GATEWAY);
-
-	}
+    }
 }

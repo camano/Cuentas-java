@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.jonathan.rest.usuarioservice.repository.CustomUserDetailsService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +21,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+	private final static Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+
 	@Autowired
 	private JwtTokenProvider jwtTokenProvider;
 
@@ -28,23 +32,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		// obtenemos el token de la solicitud HTTP
-		String token = obtenerJWTdeLaSolicitud(request);
+		try {
 
-		// validamos el token
-		if (StringUtils.hasText(token) && jwtTokenProvider.validarToken(token)) {
-			// obtenemos el username del token
-			String username = jwtTokenProvider.obtenerUsernameDelJWT(token);
+			String token = obtenerJWTdeLaSolicitud(request);
 
-			// cargamos el usuario asociado al token
-			UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-			UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
-					userDetails, null, userDetails.getAuthorities());
-			authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+			// validamos el token
+			if (StringUtils.hasText(token) && jwtTokenProvider.validarToken(token)) {
+				// obtenemos el username del token
+				String username = jwtTokenProvider.obtenerUsernameDelJWT(token);
 
-			// establecemos la seguridad
-			SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+				// cargamos el usuario asociado al token
+				UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+				UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+						userDetails, null, userDetails.getAuthorities());
+				authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+				// establecemos la seguridad
+				SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+			}
+		} catch (Exception e) {
+			logger.error("fail en el metodo dofilter"+e.getMessage());
 		}
+		// obtenemos el token de la solicitud HTTP
+
 		filterChain.doFilter(request, response);
 	}
 

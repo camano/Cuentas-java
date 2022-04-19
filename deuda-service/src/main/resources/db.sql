@@ -4,3 +4,4 @@ INSERT INTO estado (id,nombre) values  (3,'Cancelado');
 
 
 
+truncate table deuda  restart identity;
