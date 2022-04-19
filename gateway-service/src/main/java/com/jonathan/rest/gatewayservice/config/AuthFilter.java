@@ -1,6 +1,5 @@
 package com.jonathan.rest.gatewayservice.config;
 
-import com.jonathan.rest.gatewayservice.dto.RequestDto;
 import com.jonathan.rest.gatewayservice.dto.TokenDto;
 
 import org.springframework.cloud.gateway.filter.GatewayFilter;
@@ -38,7 +37,7 @@ public class AuthFilter extends AbstractGatewayFilterFactory<AuthFilter.Config> 
                     .uri("http://usuario-service/api/auth/validate?token=" + chunks[1])
                     .retrieve().bodyToMono(TokenDto.class)
                     .map(t -> {
-                        
+
                         return exchange;
                     }).flatMap(chain::filter);
         }));
