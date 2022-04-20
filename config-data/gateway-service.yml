@@ -24,15 +24,15 @@ spring:
           predicates:
             - Path=/api/auth/**
   datasource:
-      url: jdbc:postgresql://localhost:5432/economiadb
-      driver-class-name: org.postgresql.Driver
-      username: postgres
-      password: root 
-    jpa:
-      database: POSTGRESQL
-      show-sql : false
-      hibernate:
-        ddl-auto: update
+    url: jdbc:postgresql://localhost:5432/economiadb
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: root 
+  jpa:
+    database: POSTGRESQL
+    show-sql : false
+    hibernate:
+      ddl-auto: update
 
 app:
   jwt-secret: JWTSecretKey
