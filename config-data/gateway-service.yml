@@ -6,7 +6,21 @@ eureka:
     serviceUrl:
       defaultZone: http://localhost:8082/eureka/
 
+app:
+  jwt-secret: JWTSecretKey
+  jwt-expiration-milliseconds: 86400000
+
 spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/economiadb
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: root 
+  jpa:
+    database: POSTGRESQL
+    show-sql : false
+    hibernate:
+      ddl-auto: update
   cloud:
     gateway:
       discovery:

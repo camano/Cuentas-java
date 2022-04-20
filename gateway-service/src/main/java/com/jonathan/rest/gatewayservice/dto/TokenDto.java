@@ -18,9 +18,4 @@ public class TokenDto {
         this.token = token;
     }
 
-    @Override
-    public String toString() {
-        return "TokenDto [token=" + token + "]";
-    }
-
 }

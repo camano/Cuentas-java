@@ -1,10 +1,19 @@
 package com.jonathan.rest.deudaservice.dto;
 
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+
 public class DeudaDto {
 
     private Integer id;
+    @NotEmpty(message = "La descripcion  no debe estar vacio o nulo")
     private String descripcion;
+    @NotNull(message = "El valor no debe ser nulo")    
     private Double valor;
+
+    @NotNull(message = "El Estado no debe ser nulo")    
     private Integer estado;
 
     public DeudaDto() {

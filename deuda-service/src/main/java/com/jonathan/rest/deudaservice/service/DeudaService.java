@@ -9,5 +9,7 @@ public interface DeudaService {
     
     public List<Deuda>listarDeudas();
     public DeudaDto addDeuda(DeudaDto deudaDto);
+    public DeudaDto updateDeuda(DeudaDto deudaDto);
+    public void deleteDeuda(DeudaDto deudaDto);
 
 }
