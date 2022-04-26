@@ -57,4 +57,9 @@ public class Deuda implements Serializable {
         this.estado = estado;
     }
 
+    @Override
+    public String toString() {
+        return "Deuda [descripcion=" + descripcion + ", estado=" + estado + ", id=" + id + ", valor=" + valor + "]";
+    }
+
 }

@@ -6,10 +6,15 @@ import com.jonathan.rest.deudaservice.dto.DeudaDto;
 import com.jonathan.rest.deudaservice.entity.Deuda;
 
 public interface DeudaService {
-    
-    public List<Deuda>listarDeudas();
+
+    public List<Deuda> listarDeudas();
+
     public DeudaDto addDeuda(DeudaDto deudaDto);
+
     public DeudaDto updateDeuda(DeudaDto deudaDto);
-    public void deleteDeuda(DeudaDto deudaDto);
+
+    public void deleteDeuda(int id);
+
+    public DeudaDto getDeudaxId(int id);
 
 }
