@@ -21,13 +21,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/deudas")
 public class DeudasController {
 
 	@Autowired
 	private DeudaService deudaService;
 
-	@GetMapping
+	@GetMapping("/listar")
 	public ResponseEntity<?> listarDeudas() {
 		return new ResponseEntity<>(deudaService.listarDeudas(), HttpStatus.OK);
 	}
